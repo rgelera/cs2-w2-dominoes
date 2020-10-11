@@ -94,11 +94,46 @@ domino* generateDominoSet() {
   return dominoSet;
 }
 
+// return true if a >= b, bottom of domino having more priority
+bool compareDominos(domino a, domino b) {
+  if (a.bottom > b.bottom) {
+    return true;
+  } else if (a.bottom == b.bottom) {
+    return a.top >= b.top;
+  } else {
+    return false;
+  }
+}
+
+/*
+  Insertion sort by bottom domino lowest to highest, then top lowest to highest
+  {0, 0}, {1, 0} {2, 0}... {0, 1}, {1, 1}, ...
+ */
+void sortDominoSet(domino *dominoSet, int SET_SIZE) {
+  int i, j;
+  domino curr;
+  for (i = 1; i < SET_SIZE; i++) {
+    curr = dominoSet[i];
+    j = i - 1;
+    
+    while (j >= 0 && compareDominos(dominoSet[j], curr)) {
+      dominoSet[j + 1] = dominoSet[j];
+      j = j - 1;
+    }
+    dominoSet[j + 1] = curr;
+  }
+}
+
 int main(int argc, char** argv) {
   const int SET_SIZE = 49;
 
   domino *dominoSet = generateDominoSet();
 
+  // Top lowest to highest, bottom lowest to highest
+  printDominoes(dominoSet, SET_SIZE);
+
+  // Bottom lowest to highest, top lowest to highest
+  sortDominoSet(dominoSet, SET_SIZE);
   printDominoes(dominoSet, SET_SIZE);
 
   return 0;
