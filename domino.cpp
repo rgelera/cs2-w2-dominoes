@@ -51,15 +51,15 @@ void printDominoSection(int num) {
 }
 
 /* 
-  ----- 
+ +-----+ 
  |* * *|
  |* * *|
  |* * *|
- |-----|
+ +-----+
  |* * *|
  |* * *|
  |* * *|
-  -----
+ +-----+
  */
 void printDomino(domino domino) {
   const string horizontalLine = "+-----+";
@@ -76,15 +76,28 @@ void printDominoes(domino dominoSet[], int SET_SIZE) {
   }
 }
 
+domino* generateDominoSet() {
+  domino *dominoSet = new domino[49];
+  int count = 0;
+
+  for (int top = 0; top <= 6; top++) {
+    for (int bottom = 0; bottom <= 6; bottom++) {
+      domino domino;
+      domino.top = top;
+      domino.bottom = bottom;
+
+      dominoSet[count] = domino;
+      count++;
+    }
+  }
+
+  return dominoSet;
+}
+
 int main(int argc, char** argv) {
-  const int SET_SIZE = 5;
-  domino dominoSet[SET_SIZE] = {
-    {1, 5},
-    {6, 2},
-    {3, 5},
-    {0, 1},
-    {4, 6}
-  };
+  const int SET_SIZE = 49;
+
+  domino *dominoSet = generateDominoSet();
 
   printDominoes(dominoSet, SET_SIZE);
 
