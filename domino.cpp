@@ -61,6 +61,7 @@ void printDominoSection(int num) {
  |* * *|
  +-----+
  */
+
 void printDomino(domino domino) {
   const string horizontalLine = "+-----+";
   cout << horizontalLine << endl;
