@@ -7,6 +7,8 @@ Write code to sort the dominoes in a new order. You don’t need to write a func
 Write code that prints the contents of the sorted dominoes array using asterisks (*) and any other characters needed, displaying them similar to how real dominoes would be laid out. When the program is run, it must be clear that your array has been sorted in a different order than it was created in. */
 
 #include <iostream>
+#include <termios.h>
+#include <sys/ioctl.h>
 
 using namespace std;
 
@@ -21,7 +23,7 @@ void topRow(int num) {
   dot = (num >= 2) ? "*   " : "    ";
   cout << dot;
   dot = (num >= 4) ? "*" : " ";
-  cout << dot << "|" << endl;
+  cout << dot << "|";
 }
 
 void midRow(int num) {
@@ -32,7 +34,7 @@ void midRow(int num) {
   dot = (num % 2 == 1) ? "* " : "  "; 
   cout << dot;
   dot = (num >= 6) ? "*" : " ";
-  cout << dot << "|" << endl;
+  cout << dot << "|";
 }
 
 void botRow(int num) {
@@ -41,13 +43,16 @@ void botRow(int num) {
   dot = (num >= 4) ? "*   " : "    ";
   cout << dot;
   dot = (num >= 2) ? "*" : " ";
-  cout << dot << "|" << endl;
+  cout << dot << "|";
 }
 
 void printDominoSection(int num) {
   topRow(num);
+  cout << endl;
   midRow(num);
+  cout << endl;
   botRow(num);
+  cout << endl;
 }
 
 /* 
@@ -74,6 +79,71 @@ void printDomino(domino domino) {
 void printDominoes(domino dominoSet[], int SET_SIZE) {
   for (int i = 0; i < SET_SIZE; i++) {
     printDomino(dominoSet[i]);
+  }
+}
+
+// print dominoes horizontally
+
+void printHorizontalBarRow(int num) {
+  const string horizontalLine = "+-----+";
+  for (int i = 0; i < num; i++) {
+    cout << horizontalLine << " ";
+  }
+  cout << endl;
+}
+
+void printDominoesHRow(domino dominoSet[], int start, int dominoesPerRow, int SET_SIZE) {
+  int extraDominoes = dominoesPerRow - (SET_SIZE - start);
+  if (extraDominoes < 0) extraDominoes = 0;
+
+  printHorizontalBarRow(dominoesPerRow - extraDominoes);
+
+  // start top section
+  for (int t = start; t < start + dominoesPerRow - extraDominoes; t++) {
+    topRow(dominoSet[t].top);
+    cout << " ";
+  }
+  cout << endl;
+
+  for (int m = start; m < start + dominoesPerRow - extraDominoes; m++) {
+    midRow(dominoSet[m].top);
+    cout << " ";
+  }
+  cout << endl;
+
+  for (int b = start; b < start + dominoesPerRow - extraDominoes; b++) {
+    botRow(dominoSet[b].top);
+    cout << " ";
+  }
+  cout << endl;
+
+  printHorizontalBarRow(dominoesPerRow - extraDominoes);
+
+  // start bot section
+  for (int t = start; t < start + dominoesPerRow - extraDominoes; t++) {
+    topRow(dominoSet[t].bottom);
+    cout << " ";
+  }
+  cout << endl;
+
+  for (int m = start; m < start + dominoesPerRow - extraDominoes; m++) {
+    midRow(dominoSet[m].bottom);
+    cout << " ";
+  }
+  cout << endl;
+
+  for (int b = start; b < start + dominoesPerRow - extraDominoes; b++) {
+    botRow(dominoSet[b].bottom);
+    cout << " ";
+  }
+  cout << endl;
+
+  printHorizontalBarRow(dominoesPerRow - extraDominoes);
+}
+
+void printDominoesH(domino dominoSet[], int SET_SIZE, int dominoesPerRow) {
+  for (int i = 0; i < SET_SIZE; i = i + dominoesPerRow) {
+    printDominoesHRow(dominoSet, i, dominoesPerRow, SET_SIZE);
   }
 }
 
@@ -126,16 +196,29 @@ void sortDominoSet(domino *dominoSet, int SET_SIZE) {
 }
 
 int main(int argc, char** argv) {
+  // terminal width size
+  struct winsize ws;
+  ioctl(0, TIOCGWINSZ, &ws);
+
+  // domino size is 7 in length plus a space after means 8 per domino
+  // ws.ws_col / 8 will be how many dominos per print
+  const int DOMINO_WIDTH = 7;
+  int dominoesPerRow = ws.ws_col / (DOMINO_WIDTH + 1);
+  
   const int SET_SIZE = 49;
 
   domino *dominoSet = generateDominoSet();
 
-  // Top lowest to highest, bottom lowest to highest
+  /* // Top lowest to highest, bottom lowest to highest
   printDominoes(dominoSet, SET_SIZE);
 
   // Bottom lowest to highest, top lowest to highest
   sortDominoSet(dominoSet, SET_SIZE);
-  printDominoes(dominoSet, SET_SIZE);
+  printDominoes(dominoSet, SET_SIZE); */
+
+  printDominoesH(dominoSet, SET_SIZE, dominoesPerRow);
+  sortDominoSet(dominoSet, SET_SIZE);
+  printDominoesH(dominoSet, SET_SIZE, dominoesPerRow);
 
   return 0;
 }
